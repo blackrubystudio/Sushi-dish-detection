@@ -390,7 +390,8 @@ if __name__ == '__main__':
     # Configurations
     if args.command == "train":
         dish_config = DishConfig()
-        config = dish_config.add_args(**dict(args.pairs))
+        dish_config = dish_config.add_args(**dict(args.pairs))
+        config = dish_config
     else:
         config = DishIngerenceConfig()
     config.display()
