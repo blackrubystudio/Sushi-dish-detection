@@ -113,6 +113,9 @@ class DishConfig(Config):
 
     # Max number of final detections per image
     DETECTION_MAX_INSTANCES = 100
+    
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 
 class DishIngerenceConfig(DishConfig):
@@ -235,6 +238,17 @@ def train(model):
     dataset_val.load_dish(args.dataset, "val")
     dataset_val.prepare()
 
+    augmentation = iaa.SomeOf((0, 2), [
+        iaa.Fliplr(0.5),
+        iaa.OneOf([iaa.Affine(rotate=90),
+                   iaa.Affine(rotate=180),
+                   iaa.Affine(rotate=270),
+                   iaa.Affine(rotate=45),
+                   iaa.Affine(rotate=135)]),
+        iaa.Multiply((0.8, 1.5)),
+        iaa.GaussianBlur(sigma=(0.0, 5.0))
+    ])
+
     # *** This training schedule is an example. Update to your needs ***
     # Since we're using a very small dataset, and starting from
     # COCO trained weights, we don't need to train too long. Also,
@@ -242,8 +256,16 @@ def train(model):
     print("Training network heads")
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE,
-                epochs=30,
-                layers='heads')
+                epochs=20,
+                layers='heads',
+                augmentation=augmentation)
+
+    print("Fine tune Resnet stage 4 and up")
+    model.train(dataset_train, dataset_val,
+                learning_rate=config.LEARNING_RATE,
+                epochs=40,
+                layers='4+',
+                augmentation=augmentation)
 
 
 def color_splash(image, mask):
@@ -331,8 +353,8 @@ if __name__ == '__main__':
                         metavar="<command>",
                         help="'train' or 'splash'")
     parser.add_argument('--dataset', required=False,
-                        metavar="/path/to/balloon/dataset/",
-                        help='Directory of the Balloon dataset')
+                        metavar="/path/to/dish/dataset/",
+                        help='Directory of the dish dataset')
     parser.add_argument('--weights', required=True,
                         metavar="/path/to/weights.h5",
                         help="Path to weights .h5 file or 'coco'")
@@ -346,6 +368,11 @@ if __name__ == '__main__':
     parser.add_argument('--video', required=False,
                         metavar="path or URL to video",
                         help='Video to apply the color splash effect on')
+    parser.add_argument('--pairs', required=False,
+                        metavar="key=value",
+                        help="Key values to apply config",
+                        action='append',
+                        type=lambda kv: kv.split("="))
     args = parser.parse_args()
 
     # Validate arguments
@@ -358,10 +385,11 @@ if __name__ == '__main__':
     print("Weights: ", args.weights)
     print("Dataset: ", args.dataset)
     print("Logs: ", args.logs)
+    print("Keypairs: ", args.pairs)
 
     # Configurations
     if args.command == "train":
-        config = DishConfig()
+        config = DishConfig(**dict(args.pairs))
     else:
         config = DishIngerenceConfig()
     config.display()
@@ -409,3 +437,4 @@ if __name__ == '__main__':
     else:
         print("'{}' is not recognized. "
               "Use 'train' or 'splash'".format(args.command))
+

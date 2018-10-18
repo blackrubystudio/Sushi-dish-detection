@@ -36,6 +36,6 @@ source activate tensorflow_p36
 tensorboard --logdir=${PWD}/logs
 
 # 9. Run in tensorflow docker
-nvidia-docker run -it -p 8889:8888 -p 6007:6006 -v ${PWD}:~/notebooks/works tensorflow/tensorflow:latest-gpu-py3
+nvidia-docker run -it -p 8889:8888 -p 6007:6006 -v ${PWD}:/notebooks/works tensorflow/tensorflow:latest-gpu-py3
 pip install scikit-image==0.13.1 imgaug opencv-python
 apt-get install -y libsm6 libxext6 libxrender-dev
