@@ -18,6 +18,7 @@ import json
 import datetime
 import numpy as np
 import skimage.draw
+from imgaug import augmenters as iaa
 
 # Import Mask RCNN
 from mrcnn.config import Config
@@ -55,15 +56,15 @@ class DishConfig(Config):
 
     # We use a GPU with 12GB memory, which can fit two images.
     # Adjust down if you use a smaller GPU.
-    IMAGES_PER_GPU = 6
+    IMAGES_PER_GPU = 2
 
     # Number of training and validation steps per epoch
-    STEPS_PER_EPOCH = 490 // IMAGES_PER_GPU
+    STEPS_PER_EPOCH = 810
     VALIDATION_STEPS = 122// IMAGES_PER_GPU
 
     # Backbone network architecture
     # Supported values are: resnet50, resnet101
-    BACKBONE = "resnet50"
+    BACKBONE = "resnet101"
 
     # Number of classes (including background)
     NUM_CLASSES = 1 + 7  # Background + dishes
@@ -225,13 +226,13 @@ class DishDataset(utils.Dataset):
 def train(model):
     """Train the model."""
     # Training dataset.
-    dataset_train = BalloonDataset()
-    dataset_train.load_balloon(args.dataset, "train")
+    dataset_train = DishDataset()
+    dataset_train.load_dish(args.dataset, "train")
     dataset_train.prepare()
 
     # Validation dataset
-    dataset_val = BalloonDataset()
-    dataset_val.load_balloon(args.dataset, "val")
+    dataset_val = DishDataset()
+    dataset_val.load_dish(args.dataset, "val")
     dataset_val.prepare()
 
     # *** This training schedule is an example. Update to your needs ***
