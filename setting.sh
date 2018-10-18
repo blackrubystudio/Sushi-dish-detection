@@ -12,21 +12,21 @@ git clone https://github.com/zaiyou12/Gatten_sushi_dishi_detection.git
 ## Run jupyter notebook
 cd Gatten_sushi_dishi_detection
 source activate tensorflow_p36
-pip3 install --upgrade pip
-jupyter notebook
+pip install --upgrade pip
+## jupyter notebook
 
 # 2. Setting for Trainning model
-## (after copy data to server)
-ssh p3-tokyo-ml
+## local to remote
+scp data.zip mask_rcnn_coco.h5 p2-tokyo-ml:/home/ubuntu/Gatten_sushi_dishi_detection/
+## ssh p2-tokyo-ml
 cd Gatten_sushi_dishi_detection && unzip *.zip
-rm -rf __MACOSX/ data.zip
+rm -rf data.zip
 tmux new -s train
 source activate tensorflow_p36
-pip install imgaug
-pip install opencv-python
+pip install imgaug opencv-python
 
 ## Start Trainning
-python3 dish.py train --dataset=${PWD}/data --weights=coco
+python3 dish.py train --dataset=${PWD}/data --weights=coco --pairs BACKBONE=resnet50
 python3 dish.py train --dataset=${PWD}/data --weights=last;mail -s 'Finished' zaiyou12@gmail.com; sudo shutdown now;
 
 # 3. Run TensorBoard

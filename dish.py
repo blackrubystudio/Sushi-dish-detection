@@ -114,7 +114,7 @@ class DishConfig(Config):
     # Max number of final detections per image
     DETECTION_MAX_INSTANCES = 100
     
-    def __init__(self, **kwargs):
+    def add_args(self, **kwargs):
         self.__dict__.update(kwargs)
 
 
@@ -389,7 +389,8 @@ if __name__ == '__main__':
 
     # Configurations
     if args.command == "train":
-        config = DishConfig(**dict(args.pairs))
+        dish_config = DishConfig()
+	config = dish_config.add_args(**dict(args.pairs))
     else:
         config = DishIngerenceConfig()
     config.display()
