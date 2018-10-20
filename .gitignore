@@ -162,3 +162,4 @@ pip-selfcheck.json
 
 # Data
 data/*
+*.zip

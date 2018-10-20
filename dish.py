@@ -137,11 +137,16 @@ class DishDataset(utils.Dataset):
         dataset_dir: Root directory of the dataset.
         subset: Subset to load: train or val
         """
+        
         # Add classes. We have only one class to add.
-        for key, value in LABEL_CLASS.items():
-            # ex: self.add_class("dish", 1, "green")
-            self.add_class('dish', value, key)
-
+        self.add_class("dish", 1, "green")
+        self.add_class("dish", 2, "red")
+        self.add_class("dish", 3, "purple")
+        self.add_class("dish", 4, "navy")
+        self.add_class("dish", 5, "silver")
+        self.add_class("dish", 6, "gold")
+        self.add_class("dish", 7, "black")
+        
         # Train or validation dataset?
         assert subset in ["train", "val"]
         dataset_dir = os.path.join(dataset_dir, subset)
