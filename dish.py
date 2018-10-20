@@ -59,7 +59,7 @@ class DishConfig(Config):
     IMAGES_PER_GPU = 2
 
     # Number of training and validation steps per epoch
-    STEPS_PER_EPOCH = 810
+    STEPS_PER_EPOCH = 1000
     VALIDATION_STEPS = 122// IMAGES_PER_GPU
 
     # Backbone network architecture
@@ -243,6 +243,7 @@ def train(model):
     dataset_val.load_dish(args.dataset, "val")
     dataset_val.prepare()
 
+    # Augment
     augmentation = iaa.SomeOf((0, 2), [
         iaa.Fliplr(0.5),
         iaa.OneOf([iaa.Affine(rotate=90),
@@ -433,7 +434,9 @@ if __name__ == '__main__':
             "mrcnn_class_logits", "mrcnn_bbox_fc",
             "mrcnn_bbox", "mrcnn_mask"])
     else:
-        model.load_weights(weights_path, by_name=True)
+        model.load_weights(weights_path, by_name=True, exclude=[
+            "mrcnn_class_logits", "mrcnn_bbox_fc",
+            "mrcnn_bbox", "mrcnn_mask"])
 
     # Train or evaluate
     if args.command == "train":
