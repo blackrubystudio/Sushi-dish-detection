@@ -59,7 +59,7 @@ class DishConfig(Config):
     IMAGES_PER_GPU = 2
 
     # Number of training and validation steps per epoch
-    STEPS_PER_EPOCH = 1000
+    STEPS_PER_EPOCH = 810
     VALIDATION_STEPS = 122// IMAGES_PER_GPU
 
     # Backbone network architecture
@@ -95,9 +95,6 @@ class DishConfig(Config):
     IMAGE_MAX_DIM = 512
     # IMAGE_MIN_SCALE = 2.0
 
-    # Skip detections with < 50% confidence
-    DETECTION_MIN_CONFIDENCE = 0.5
-
     # Image mean (RGB)
     # MEAN_PIXEL = np.array([43.53, 39.56, 48.22])
 
@@ -113,12 +110,15 @@ class DishConfig(Config):
 
     # Max number of final detections per image
     DETECTION_MAX_INSTANCES = 100
+
+    # Skip detections with < 50% confidence
+    DETECTION_MIN_CONFIDENCE = 0.5
     
     def add_args(self, **kwargs):
         self.__dict__.update(kwargs)
 
 
-class DishIngerenceConfig(DishConfig):
+class DishInferenceConfig(DishConfig):
     GPU_COUNT = 1
     IMAGES_PER_GPU = 1
     # Don't resize imager for inferencing

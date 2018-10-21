@@ -162,5 +162,7 @@ pip-selfcheck.json
 
 # Data
 data/*
+models/*
 *.zip
 *.h5
+*.ipynb
