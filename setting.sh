@@ -1,5 +1,5 @@
 # 0. Initialize
-## Prepare two tabs, one for train, one for transfer data and tensorboard
+## Prepare two tabs, one for train, one for transfering data and tensorboard
 ## AMI: Ubuntu deeplearning ami 
 ## Storage: 100gib
 
@@ -53,7 +53,7 @@ source activate tensorflow_p36
 tensorboard --logdir=${PWD}/logs
 
 
-# 9. Run in tensorflow docker
+# Etc. Run in tensorflow docker
 cd ~/Desktop/gatten/Gatten_sushi_dishi_detection
 nvidia-docker run -d -p 8888:8888 -p 6006:6006 -e PASSWORD=1111 --name board -v ${PWD}:/notebooks/works tensorflow/tensorflow:latest-gpu-py3
 nvidia-docker exec -it board bash
