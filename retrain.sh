@@ -1,9 +1,9 @@
-export SERVER_NAME=virginia-ml
-export SERVER_NAME=ohio-ml
-export SERVER_NAME=oregon-ml
-export SERVER_NAME=canada-ml
-export SERVER_NAME=london-ml
-export SERVER_NAME=frankfurt-ml
+export SERVER_NAME=virginia-dl
+export SERVER_NAME=ohio-dl
+export SERVER_NAME=oregon-dl
+export SERVER_NAME=canada-dl
+export SERVER_NAME=london-dl
+export SERVER_NAME=frankfurt-dl
 
 
 # 1. Check is it finished
@@ -19,8 +19,7 @@ source activate tensorflow_p36
 tensorboard --logdir=logs
 
 cd /Users/aaron/Desktop/Code/dish-detection/models
-scp -r ${SERVER_NAME}:/home/ubuntu/logs/dish20181021T0457/events* .
-# scp -r ${SERVER_NAME}:/home/ubuntu/logs/dish20181021T0457/mask_rcnn_dish_0033.h5 .
+scp -r ${SERVER_NAME}:/home/ubuntu/logs/**/events* .
 
 
 # 3. Prepare for restarting
