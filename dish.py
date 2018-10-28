@@ -18,7 +18,6 @@ import json
 import datetime
 import numpy as np
 import skimage.draw
-from imgaug import augmenters as iaa
 
 # Import Mask RCNN
 from mrcnn.config import Config
@@ -59,8 +58,8 @@ class DishConfig(Config):
     IMAGES_PER_GPU = 2
 
     # Number of training and validation steps per epoch
-    STEPS_PER_EPOCH = 810
-    VALIDATION_STEPS = 122// IMAGES_PER_GPU
+    STEPS_PER_EPOCH = 1000
+    VALIDATION_STEPS = 100
 
     # Backbone network architecture
     # Supported values are: resnet50, resnet101
@@ -70,18 +69,18 @@ class DishConfig(Config):
     NUM_CLASSES = 1 + 7  # Background + dishes
 
     # Length of square anchor side in pixels
-    RPN_ANCHOR_SCALES = (8, 16, 32, 64, 128)
+    RPN_ANCHOR_SCALES = (16, 32, 64, 128, 256)
 
     # Non-max suppression threshold to filter RPN proposals.
     # You can increase this during training to generate more propsals.
-    RPN_NMS_THRESHOLD = 0.9
+    RPN_NMS_THRESHOLD = 0.8
 
     # How many anchors per image to use for RPN training
-    RPN_TRAIN_ANCHORS_PER_IMAGE = 64
+    RPN_TRAIN_ANCHORS_PER_IMAGE = 128
 
     # ROIs kept after non-maximum supression (training and inference)
-    POST_NMS_ROIS_TRAINING = 1000
-    POST_NMS_ROIS_INFERENCE = 2000
+    POST_NMS_ROIS_TRAINING = 2000
+    POST_NMS_ROIS_INFERENCE = 1000
 
     # If enabled, resizes instance masks to a smaller size to reduce
     # memory load. Recommended when using high-resolution images.
@@ -92,7 +91,7 @@ class DishConfig(Config):
     # Random crops of size 512x512
     IMAGE_RESIZE_MODE = "square"
     IMAGE_MIN_DIM = 512
-    IMAGE_MAX_DIM = 512
+    IMAGE_MAX_DIM = 1024
     # IMAGE_MIN_SCALE = 2.0
 
     # Image mean (RGB)
@@ -109,7 +108,7 @@ class DishConfig(Config):
     MAX_GT_INSTANCES = 100
 
     # Max number of final detections per image
-    DETECTION_MAX_INSTANCES = 100
+    DETECTION_MAX_INSTANCES = 200
 
     # Skip detections with < 50% confidence
     DETECTION_MIN_CONFIDENCE = 0.5
@@ -232,6 +231,8 @@ class DishDataset(utils.Dataset):
 
 
 def train(model):
+    from imgaug import augmenters as iaa
+
     """Train the model."""
     # Training dataset.
     dataset_train = DishDataset()
@@ -244,7 +245,7 @@ def train(model):
     dataset_val.prepare()
 
     # Augment
-    augmentation = iaa.SomeOf((0, 2), [
+    augmentation = iaa.SomeOf((0, None), [
         iaa.Fliplr(0.5),
         iaa.OneOf([iaa.Affine(rotate=90),
                    iaa.Affine(rotate=180),
@@ -271,6 +272,12 @@ def train(model):
                 learning_rate=config.LEARNING_RATE,
                 epochs=40,
                 layers='4+',
+                augmentation=augmentation)
+
+    model.train(dataset_train, dataset_val,
+                learning_rate=config.LEARNING_RATE/10,
+                epochs=80,
+                layers='all',
                 augmentation=augmentation)
 
 
