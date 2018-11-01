@@ -6,7 +6,7 @@
 
 ## Introduction
 
-The following is a summary of the "Sushi Dish Detection Project" in October 2018. If there is a mistake or a better way, please let us know by e-mail(jae.woo@blackrubystudio.com) or Github. We also hope that this summary will give some hints to others who are learning deep learning just like we do.
+The following is a summary of the "Sushi Dish Detection Project" in October 2018. If there is a mistake or a better way, please let us know by e-mail(info@blackrubystudio.com) or Github. We also hope that this summary will give some hints to others who are learning deep learning just like we do.
 
 At the Korean branch of the Gatten Sushi(belt sushi restaurant), there was a suggestion to make a program that can easily measure the price of the sushi dishes that customers have eaten. At that time, we did not know that this was possible in reality, because dishes were piled up so that there would not be many exposed parts. Also, it has a direct impact on price, there can be a mistake that customers are overcharged or under-charged.
 
@@ -44,7 +44,7 @@ python3 shuffle_images.py --dataset ${PWD}/data/train
 
 #### 1d. Resize images *
 
-When we first started, we compressed all the images for quick training. After that, we used only the original image to vary the image size in various ways. [Image resize code we refer to](https://github.com/EdjeElectronics/TensorFlow-Object-Detection-API-Tutorial-Train-Multiple-Objects-Windows-10/blob/master/resizer.py)
+When we first started, we compressed all the images for quick training. After that, we used only the original image to vary the image size in various ways. ([Image resize code we refer to](https://github.com/EdjeElectronics/TensorFlow-Object-Detection-API-Tutorial-Train-Multiple-Objects-Windows-10/blob/master/resizer.py))
 
 #### 1e. Image Labeling
 
@@ -64,11 +64,11 @@ labelme --autosave --nodata
 
 #### 1f. Synthetic Data *
 
-We were tired of manually labeling, we found this by accident. Synthetic Data is a method to randomly generate fake data and to automatically extract the labeling. We were planning to use Unity to place 3d modeled dishes at random, but could not find any way to extract the labeling data. We decided to look it out when the project was over, but we did not figure it yet. ([Wired article about synthetic data](https://www.wired.com/story/some-startups-use-fake-data-to-train-ai/))
+We were tired of manually labeling, we found this by accident. Synthetic Data is a method to randomly generate fake data and to automatically extract the labeling. We were planning to use Unity to place 3d modeled dishes at random, but could not find any way to extract the labeling data. We decided to look it out when the project was over, but we did not figure it out yet. ([Wired article about synthetic data](https://www.wired.com/story/some-startups-use-fake-data-to-train-ai/))
 
 ### 2. Set up Trainning Environment
 
-In most cases we used "Deep learning AMI" in AWS. We did not ask for releasing the number limit of GPU, so we were forced to make one instance in various regions.
+In most cases we used "Deep learning AMI" in AWS. We did not ask AWS for releasing the number limit of GPU, so we were forced to make one single instance in various regions.
 
 #### 2a. AWS p2 vs p3
 
@@ -107,67 +107,172 @@ pip install imgaug opencv-python
 
 #### 2d. Local Setting for checking
 
-We used the docker not installing Tensorflow-GPU locally, because it's enough to simply check the training results.
+We used the tensorflow docker, not installing Tensorflow-GPU locally, because it's enough to simply check the training results. If you are not using gpu locally, please use other version of [tensorflow docker in docker hub](https://hub.docker.com/r/tensorflow/tensorflow/tags/).
 
 ```bash
-nvidia-docker run -d -p 8888:8888 -p 6006:6006 -e PASSWORD=1111 --name board -v ${PWD}:/notebooks/works tensorflow/tensorflow:latest-gpu-py3
-nvidia-docker exec -it board bash
+nvidia-docker run -d -p 8888:8888 -p 6006:6006 -e PASSWORD=1111 --name mask_rcnn -v ${PWD}:/notebooks/works tensorflow/tensorflow:latest-gpu-py3
+nvidia-docker exec -it mask_rcnn bash
 
 (docker) $ apt-get install -y libsm6 libxext6 libxrender-dev
 (docker) $ pip install scikit-image==0.13.1 imgaug opencv-python
-(docker) $ tensorboard --logdir=${PWD}/path/to/logs
 ```
 
 #### 2e. Inspect Data *
 
-We used Inspect.ipynb in [Mask R-CNN](https://github.com/matterport/Mask_RCNN) to check annotations.
+We used `Inspect.ipynb` in [Mask R-CNN](https://github.com/matterport/Mask_RCNN) to check annotations.
 
-```bash
-nvidia-docker run -d -p 8889:8888 -e PASSWORD=1111 --name mask_rcnn -v ${PWD}:/notebooks/works tensorflow/tensorflow:latest-gpu-py3
-```
+### 3. Search Models
 
-### 3. 훈련 모델 조사
+At first, we would like to use Tensorflow Lite, which can run a deep running model on mobile.
 
-처음에는 모바일에서 딥러닝 모델을 구동시킬수 있는 Tensorflow lite를 사용해보고 싶은 마음에, Mobile과 real time 이라는 단어로 모델 조사.
+#### 3a. Deep Learning model on mobile
 
-#### 3a. Mobile에서 구동 가능한 모델 조사
+- SSD: Real-time hand detector with web cam, it is said to have an fps between 11 and 21, we thought it was unsuitable for the mobile environment. ([SSD-on-tensorflow](https://towardsdatascience.com/how-to-build-a-real-time-hand-detector-using-neural-networks-ssd-on-tensorflow-d6bac0e4b2ce))
+- Tiny Yolo: We wanted to find out excellent performance based on the performance table but there was not many actual example.
+- Squeeze Net: In Tensorflow Lite, it need 224ms to calculate, Top-1 accuracy is 49.0%, Top-5 accuracy is 72.9%. [Squeeze Net data](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/lite/g3doc/models.md)
+- Pelee: Optimized for mobile deep running. It has slightly better than Tiny YOLOv2 and SSD + MobileNet, but it is based on the Caffe framework. There is also a Tensorflow version, but only classification is available.
+- MobileNetv2: It is based on TensorFlow. In TensorFlow Lite, it need 637ms to calculate one image, Top-1 accuracy is 70.8%, Top-5 accuracy is 89.9%. (Same data as Squeeze Net)
 
-- SSD: 손 인식 웹캠 기준, FPS 11~21의 성능, 모바일로는 부적격 https://towardsdatascience.com/how-to-build-a-real-time-hand-detector-using-neural-networks-ssd-on-tensorflow-d6bac0e4b2ce
-- Tiny Yolo: 성능표 기준으로 뛰어난 성능이 나와 알아보고 싶었지만, 실제 예제가 없어 보류
-- Squeeze Net: Tensorflow Lite 기준 Mobile로  테스트 결과 모델 사이즈는 5mb, 계산시간은 224ms, Top-1 정확도 49.0%, Top-5 정확도 72.9%, https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/lite/g3doc/models.md
-- Pelee: 모바일 딥러닝에 최적화된 모델. Tiny-YOLOv2와 SSD+MobileNet보다 성능이 약간 좋음, 용량도 5.4M로 작으나, Caffe 프레임워크 기반. Tensorflow 버전도 있으나 현재는 classification 만 있음.
-- MobileNetv2. 구글이 18년 4월에 새롭게 발표한 모델. TensorFlow 기반이며 TensorFlow Lite와도 호완이 좋으며 용량은 3.4Mb, Top-1 정확도 70.8%, Top-5 정확도 89.9%, 637ms으로 나옴. (Squeeze Net 과 동일한 실험)
+We thought Squeeze Net is the most suitable model for the current project. However we selected MobileNetV2 as the documenting level.
 
-현재 프로젝트와 가장 적합한 방식은 Squeeze Net으로 판단됨. 다만 문서화의 정도로 MobileNetV2를 선택하여 우선적으로 개발하고, 속도상에 문제가 있다면 Squeeze Net으로 변경할 예정. 최후의 보루는 Pelee.
+We trained MobileNetV2 with about 300 images, and "mIOU 50% accuracy" is about 20%. We suspected that we made a mistake in read data, but we changed to the pixel-wise model, because we thought there was a problem with the box while looking at the trained data.
 
-MobileNetV2로 약 300여장을 훈련한 결과, mIOU 50% 기준 정확도가 20% 정도 수준이여서 학습을 중단. 데이터 라벨링 코드를 tfrecord로 바꾸는 과정에서 실수를 했는지도 의심하였지만, 학습한 데이터를 보면서 박스의 문제가 있다고 생각하여, pixel-wise 모델로 변경.
+<p align="center">
+    <img src="./image/bouding-box-image.png" alt="bouding box image" width="400"/>
+</p>
 
-#### 3b. Pixel-wise
+> We saw that there was only small difference when we cut it by each part and thought that it would be difficult to distinguish objects by squares.
 
-- Mask-RCNN
-- Tensorflow
-- Caffe
+#### 3b. Instance Segmentation
 
-Pixel-wise한 방식을 구현할수 있는 모듈이 많이 있었지만, Tensorflow 뿐만 아니라 AWS의 MX-net도 keras로 가능하다는 이야기를 듣고 keras로 되있는 Mask RCNN 선택(문서화가 잘되있었던 것도 한몫).
+We chose [Mask RCNN](https://github.com/matterport/Mask_RCNN), which is well documented and has lots of examples.
 
-### 4. 훈련 준비 과정
+### 4. Prepare for trainning
 
 #### 4a. Label map
 
-#### 4b. Image 불러오기
+```python
+## in dish.py
 
-- Image to Tfrecord
-- Read Image from csv
-- via json format to csv
+self.add_class("dish", 1, "green")
+self.add_class("dish", 2, "red")
+self.add_class("dish", 3, "purple")
+self.add_class("dish", 4, "navy")
+self.add_class("dish", 5, "silver")
+self.add_class("dish", 6, "gold")
+self.add_class("dish", 7, "black")
+```
 
-#### 4c. Configure training
+#### 4b. Load Images
+
+After converting the data format of Via to LabelImg(`via_to_labelme_form.py`), the data of LabelImg is loaded from Mask RCNN.
+
+```python
+## load from Mask RCNN in dish.py
+
+# Train or validation dataset?
+assert subset in ["train", "val"]
+dataset_dir = os.path.join(dataset_dir, subset)
+
+# get all images that end with '.jpg'
+image_list = [x for x in os.listdir(dataset_dir) if x.endswith('.jpg')]
+
+# Load annotations and Add images
+# LabelImg Annotator saves each image in the form:
+# { 'flags': {},
+#   'shapes': [
+#     {
+#       'label': 'string',
+#       'points': 
+#       [
+#         [
+#           y0, x0
+#         ],
+#         [
+#           y1, x1
+#         ],
+#         ...
+#       ]
+#     },
+#     ... more regions ...
+#   ],
+#   'imagePath': '/path/to/img'
+# }
+# (left top is (0, 0))
+for image in image_list:
+    image_name = image.split('.jpg')[0]
+
+    # get image size and annotation
+    image_path = os.path.join(dataset_dir, image)
+    image = skimage.io.imread(image_path)
+    height, width = image.shape[:2]
+    annotation = json.load(open(os.path.join(dataset_dir, image_name + '.json')))
+
+    self.add_image(
+        'dish',
+        image_id=image_name,
+        path=image_path,
+        width=width, height=height,
+        shapes=annotation['shapes']
+    )
+```
 
 ### 5. Run the Training
 
+#### 5a. Finally start trainning
+
+```bash
+export SERVER_NAME=virginia-dl ## or SERVER_NAME=ubuntu@ip-address
+## copy files to server (dish data, pre trainned h5 file)
+scp -r dish_server/* ${SERVER_NAME}:/home/ubuntu
+ssh ${SERVER_NAME}
+
+(server) > tmux new -s train
+(server - tmux) > source activate tensorflow_p36
+(server - tmux) > python3 dish.py train --dataset=${PWD}/path/to/data --weights=coco
+```
+
+#### 5b. Configure training
+
+We did not see the desired result with first few training. So we decided to increase the accuracy by changing config variable.
+
+Then we read everything from Fast RCNN to the feature pyramid and Mask RCNN paper, but we have not got any hint about setting the variable, although we have a slightly better understanding of the model. We looked through serveral sources from Google, but unfortunately it did not match our case.
+
+In order to set config more precisely, we set a certain learning range and then find the optimal variable value by raising or lowering the value little by little. We think about it now, we have done the manual gridsearch and regret that we could do it automatically.
+
+<p align="center">
+    <img src="./image/test-case.png" alt="configure training table" width="700"/>
+</p>
+
+> In this case set, 2-Res101 is default case. We choose only the best case when compared to the basic case, and then combine each variable and continue to continue...
+
 ### 6. Result
 
-## 참고 자료
+```bash
+nvidia-docker run -d -p 8889:8888 -p 6007:6006 -e PASSWORD=1111 --name board -v ${PWD}:/notebooks/works tensorflow/tensorflow:latest-gpu-py3
 
-- 123
-- 123
-- 123
+(docker) > tensorboard --logdir=${PWD}/works
+```
+
+<p align="center">
+    <img src="./image/tensorboard-scalars.png" alt="tensorboard scalars image" width="700"/>
+</p>
+
+Training was done in various ways, but the validation loss was not lower than 0.1. Although accuracy was not measured separately, it was well measured in many situations, but accuracy seem to be low when more then 10 plates were stacked. Also, ocaasionally, when two plates of the same dish were pilled up, they were sometimes recognized as one dish. For accuracy, we should write a acuuracy measurement code.
+
+<p align="center">
+    <img src="./image/result-image.png" alt="result images" width="700"/>
+</p>
+
+At the end, we made a simple website and tested it on mobile.
+
+<p align="center">
+    <img src="./image/test-in-mobile.jpg" alt="test program in mobile" width="300"/>
+</p>
+
+## Resources
+
+- [Mask RCNN](https://github.com/matterport/Mask_RCNN)
+- [Deep lab](https://github.com/tensorflow/models/tree/master/research/deeplab)
+- [Cousera Convolutional Neural Network](https://www.coursera.org/learn/convolutional-neural-networks)
+- [Tensorflow object detection tutorial](https://github.com/EdjeElectronics/TensorFlow-Object-Detection-API-Tutorial-Train-Multiple-Objects-Windows-10)
