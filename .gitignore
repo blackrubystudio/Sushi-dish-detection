@@ -162,7 +162,8 @@ pip-selfcheck.json
 
 # Data
 data/*
-models/*
+model/*
 *.zip
 *.h5
 *.ipynb
+.vscode/*
