@@ -28,8 +28,9 @@ ssh ${SERVER_NAME}
 rm -rf logs
 vim dish.py
 
-## Change something if u want
-## vim dish.py
+## Change something if you want
+## $ vim dish.py
+## when in parell mode you must use 'keras==2.0.8' 
 tmux new -s train
 
 source activate tensorflow_p36

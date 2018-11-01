@@ -55,10 +55,11 @@ class DishConfig(Config):
 
     # We use a GPU with 12GB memory, which can fit two images.
     # Adjust down if you use a smaller GPU.
-    IMAGES_PER_GPU = 2
+    GPU_COUNT = 1
+    IMAGES_PER_GPU = 1
 
     # Number of training and validation steps per epoch
-    STEPS_PER_EPOCH = 1000
+    STEPS_PER_EPOCH = 2000
     VALIDATION_STEPS = 100
 
     # Backbone network architecture
@@ -111,7 +112,7 @@ class DishConfig(Config):
     DETECTION_MAX_INSTANCES = 200
 
     # Skip detections with < 50% confidence
-    DETECTION_MIN_CONFIDENCE = 0.5
+    DETECTION_MIN_CONFIDENCE = 0
     
     def add_args(self, **kwargs):
         self.__dict__.update(kwargs)
@@ -252,8 +253,7 @@ def train(model):
                    iaa.Affine(rotate=270),
                    iaa.Affine(rotate=45),
                    iaa.Affine(rotate=135)]),
-        iaa.Multiply((0.8, 1.5)),
-        iaa.GaussianBlur(sigma=(0.0, 5.0))
+        iaa.Multiply((0.8, 1.5))
     ])
 
     # *** This training schedule is an example. Update to your needs ***
@@ -270,14 +270,8 @@ def train(model):
     print("Fine tune Resnet stage 4 and up")
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE,
-                epochs=40,
+                epochs=100,
                 layers='4+',
-                augmentation=augmentation)
-
-    model.train(dataset_train, dataset_val,
-                learning_rate=config.LEARNING_RATE/10,
-                epochs=80,
-                layers='all',
                 augmentation=augmentation)
 
 
@@ -381,11 +375,11 @@ if __name__ == '__main__':
     parser.add_argument('--video', required=False,
                         metavar="path or URL to video",
                         help='Video to apply the color splash effect on')
-    parser.add_argument('--pairs', required=False,
-                        metavar="key=value",
-                        help="Key values to apply config",
-                        action='append',
-                        type=lambda kv: kv.split("="))
+    # parser.add_argument('--pairs', required=False,
+    #                     metavar="key=value",
+    #                     help="Key values to apply config",
+    #                     action='append',
+    #                     type=lambda kv: kv.split("="))
     args = parser.parse_args()
 
     # Validate arguments
@@ -403,10 +397,10 @@ if __name__ == '__main__':
     # Configurations
     if args.command == "train":
         dish_config = DishConfig()
-        dish_config.add_args(**dict(args.pairs))
+        # dish_config.add_args(**dict(args.pairs))
         config = dish_config
     else:
-        config = DishIngerenceConfig()
+        config = DishInferenceConfig()
     config.display()
 
     # Create model
