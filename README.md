@@ -246,7 +246,7 @@ In order to set config more precisely, we set a certain learning range and then 
 
 > In this case set, 2-Res101 is default case. We choose only the best case when compared to the basic case, and then combine each variable and continue to continue...
 
-### 6. Result
+### 5e. Check result in Tensorboard (local) *
 
 ```bash
 nvidia-docker run -d -p 8889:8888 -p 6007:6006 -e PASSWORD=1111 --name board -v ${PWD}:/notebooks/works tensorflow/tensorflow:latest-gpu-py3
@@ -258,7 +258,9 @@ nvidia-docker run -d -p 8889:8888 -p 6007:6006 -e PASSWORD=1111 --name board -v 
     <img src="./image/tensorboard-scalars.png" alt="tensorboard scalars image" width="700"/>
 </p>
 
-Training was done in various ways, but the validation loss was not lower than 0.1. Although accuracy was not measured separately, it was well measured in many situations, but accuracy seem to be low when more then 10 plates were stacked. Also, ocaasionally, when two plates of the same dish were pilled up, they were sometimes recognized as one dish. For accuracy, we should write a acuuracy measurement code.
+## Result
+
+We did training in various ways, but the validation loss was not lower than 0.1. Program works well in many situations, but accuracy seem to be low when more then 10 plates were stacked. Also, ocaasionally, when two plates of the same dish were pilled up, they were sometimes recognized as one dish. For accuracy, we should write a acuuracy measurement code.
 
 <p align="center">
     <img src="./image/result-image.png" alt="result images" width="700"/>
