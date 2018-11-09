@@ -4,6 +4,8 @@
     <img src="./image/dish_with_color_splash.png" alt="gatten dish detection with color splash" width="300"/>
 </p>
 
+> Implement a color splash effect on dish detection.
+
 ## Introduction
 
 The following is a summary of the "Sushi Dish Detection Project" in October 2018. If there is a mistake or a better way, please let us know by e-mail(info@blackrubystudio.com) or Github. We also hope that this summary will give some hints to others who are learning deep learning just like we do.
@@ -14,9 +16,7 @@ At the Korean branch of the Gatten Sushi(belt sushi restaurant), there was a sug
     <img src="./image/gatten_stack_dishes.jpg" alt="gatten dishes" width="300"/>
 </p>
 
-> Is it possible? :grey_question:
-
-There was other negative feedback, but for the pleasure of applying technology in real-life, we only received dishes from the Gatten Sushi and started the project. Tasks that are not needed are marked with star.
+We have achieved the desired goal, but unfortunately we have can not contact the company any more, so we want to organize the project and applied to [bread price measurement](https://github.com/blackrubystudio/bread-scanner).
 
 ## Steps
 
@@ -260,13 +260,11 @@ nvidia-docker run -d -p 8889:8888 -p 6007:6006 -e PASSWORD=1111 --name board -v 
 
 ## Result
 
-We did training in various ways, but the validation loss was not lower than 0.1. Program works well in many situations, but accuracy seem to be low when more then 10 plates were stacked. Also, ocaasionally, when two plates of the same dish were pilled up, they were sometimes recognized as one dish. For accuracy, we should write a acuuracy measurement code.
+We did training in various ways, but accuracy seems to be low when more than 10 plates were stacked. We did not have any photos of the trained data that were stacked with more than 8 dishes. We think accuracy can be improved by adding those pictures, but we think that is a simple labor work, we did not add it. In the end, we made a simple website and tested it on mobile and finish the project. ([Also we added the code to calculate accuracy in other project](https://github.com/blackrubystudio/bread-scanner).)
 
 <p align="center">
     <img src="./image/result-image.png" alt="result images" width="700"/>
 </p>
-
-At the end, we made a simple website and tested it on mobile.
 
 <p align="center">
     <img src="./image/test-in-mobile.jpg" alt="test program in mobile" width="300"/>
